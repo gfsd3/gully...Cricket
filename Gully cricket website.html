@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Scoring App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a5d1a;
+            --secondary: #f9a826;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #28a745;
+            --danger: #dc3545;
+            --info: #17a2b8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f7f0;
+            color: var(--dark);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .logo i {
+            color: var(--secondary);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        nav a:hover, nav a.active {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Page Styles */
+        .page {
+            display: none;
+            padding: 30px 0;
+            animation: fadeIn 0.5s;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .page-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--secondary);
+        }
+        
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 93, 26, 0.1);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s, transform 0.2s;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background: #144d14;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background: #e69516;
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        /* Live Scoring */
+        .scoreboard {
+            background: linear-gradient(135deg, var(--primary), #2e7d32);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .team-score {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        
+        .scoring-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .score-btn {
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .score-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .score-btn.wicket {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .score-btn.wide, .score-btn.noball {
+            background: var(--info);
+            color: white;
+        }
+        
+        .player-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .player-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        
+        .player-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .player-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #777;
+            overflow: hidden;
+        }
+        
+        .player-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .player-info h3 {
+            margin: 0;
+        }
+        
+        .player-info p {
+            margin: 5px 0 0;
+            opacity: 0.9;
+        }
+        
+        .player-stats-content {
+            padding: 15px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        
+        /* Leaderboard */
+        .leaderboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .leaderboard-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .leaderboard-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .leaderboard-content {
+            padding: 15px;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+        
+        .rank {
+            width: 30px;
+            height: 30px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .player-name {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav ul {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: var(--primary);
+                flex-direction: column;
+                padding: 20px;
+                gap: 10px;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            }
+            
+            nav ul.active {
+                display: flex;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .scoring-buttons {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        
+        /* Photo Upload */
+        .photo-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .photo-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px dashed #ccc;
+        }
+        
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .photo-preview i {
+            font-size: 3rem;
+            color: #777;
+        }
+        
+        #photo-input {
+            display: none;
+        }
+        
+        /* Match History */
+        .match-history {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .match-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s;
+        }
+        
+        .match-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .match-teams {
+            font-weight: bold;
+        }
+        
+        .match-result {
+            text-align: right;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-cricket"></i>
+                <span>Cricket Tracker</span>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul id="navMenu">
+                    <li><a href="#" class="nav-link active" data-page="home">Home</a></li>
+                    <li><a href="#" class="nav-link" data-page="add-player">Players</a></li>
+                    <li><a href="#" class="nav-link" data-page="create-team">Teams</a></li>
+                    <li><a href="#" class="nav-link" data-page="match-setup">Matches</a></li>
+                    <li><a href="#" class="nav-link" data-page="leaderboard">Leaderboard</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Pages -->
+    <div class="container">
+        <!-- Home Page -->
+        <section id="home" class="page active">
+            <h1 class="page-title">Track Every Run, Save Every Match</h1>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Quick Actions</h2>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-block" data-page="add-player">
+                        <i class="fas fa-user-plus"></i> Add Player
+                    </button>
+                    <button class="btn btn-block" style="margin-top: 10px;" data-page="match-setup">
+                        <i class="fas fa-play-circle"></i> Start Match
+                    </button>
+                    <button class="btn btn-block" style="margin-top: 10px;" data-page="leaderboard">
+                        <i class="fas fa-trophy"></i> View Leaderboard
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Matches</h2>
+                </div>
+                <div class="match-history">
+                    <div class="match-item">
+                        <div class="match-teams">Team A vs Team B</div>
+                        <div class="match-result">Team A won by 24 runs</div>
+                    </div>
+                    <div class="match-item">
+                        <div class="match-teams">Team C vs Team D</div>
+                        <div class="match-result">Team D won by 3 wickets</div>
+                    </div>
+                    <div class="match-item">
+                        <div class="match-teams">Team E vs Team F</div>
+                        <div class="match-result">Match tied</div>
+                    </div>
+                    <div class="match-item">
+                        <div class="match-teams">Team A vs Team C</div>
+                        <div class="match-result">Team A won by 45 runs</div>
+                    </div>
+                    <div class="match-item">
+                        <div class="match-teams">Team B vs Team D</div>
+                        <div class="match-result">Team D won by 7 wickets</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Player Page -->
+        <section id="add-player" class="page">
+            <h1 class="page-title">Add New Player</h1>
+            
+            <div class="card">
+                <div class="photo-upload">
+                    <div class="photo-preview" id="photoPreview">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <input type="file" id="photo-input" accept="image/*">
+                    <button class="btn btn-secondary" onclick="document.getElementById('photo-input').click()">
+                        <i class="fas fa-camera"></i> Upload Photo
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="player-name">Player Name</label>
+                    <input type="text" id="player-name" class="form-control" placeholder="Enter player's full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="player-team">Select Team</label>
+                    <select id="player-team" class="form-control">
+                        <option value="">Select a team</option>
+                        <option value="team-a">Team A</option>
+                        <option value="team-b">Team B</option>
+                        <option value="team-c">Team C</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Specialization</label>
+                    <div style="display: flex; gap: 15px;">
+                        <label style="display: flex; align-items: center;">
+                            <input type="radio" name="specialization" value="batting" checked> 
+                            <span style="margin-left: 5px;">Batsman</span>
+                        </label>
+                        <label style="display: flex; align-items: center;">
+                            <input type="radio" name="specialization" value="bowling"> 
+                            <span style="margin-left: 5px;">Bowler</span>
+                        </label>
+                        <label style="display: flex; align-items: center;">
+                            <input type="radio" name="specialization" value="all-rounder"> 
+                            <span style="margin-left: 5px;">All-rounder</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="btn btn-block">
+                    <i class="fas fa-save"></i> Save Player
+                </button>
+            </div>
+        </section>
+
+        <!-- Create Team Page -->
+        <section id="create-team" class="page">
+            <h1 class="page-title">Create New Team</h1>
+            
+            <div class="card">
+                <div class="form-group">
+                    <label for="team-name">Team Name</label>
+                    <input type="text" id="team-name" class="form-control" placeholder="Enter team name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="team-players">Select Players</label>
+                    <select id="team-players" class="form-control" multiple style="height: 200px;">
+                        <option value="player1">Virat Kohli</option>
+                        <option value="player2">Rohit Sharma</option>
+                        <option value="player3">Jasprit Bumrah</option>
+                        <option value="player4">MS Dhoni</option>
+                        <option value="player5">Hardik Pandya</option>
+                        <option value="player6">Ravindra Jadeja</option>
+                        <option value="player7">KL Rahul</option>
+                        <option value="player8">Rishabh Pant</option>
+                    </select>
+                    <small>Hold Ctrl/Cmd to select multiple players</small>
+                </div>
+                
+                <div class="photo-upload">
+                    <div class="photo-preview" style="width: 120px; height: 120px; border-radius: 10px;" id="teamPhotoPreview">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <input type="file" id="team-photo-input" accept="image/*">
+                    <button class="btn btn-secondary" onclick="document.getElementById('team-photo-input').click()">
+                        <i class="fas fa-camera"></i> Upload Team Logo
+                    </button>
+                </div>
+                
+                <button class="btn btn-block">
+                    <i class="fas fa-save"></i> Create Team
+                </button>
+            </div>
+        </section>
+
+        <!-- Match Setup Page -->
+        <section id="match-setup" class="page">
+            <h1 class="page-title">Setup New Match</h1>
+            
+            <div class="card">
+                <div class="form-group">
+                    <label for="team-a">Team A</label>
+                    <select id="team-a" class="form-control">
+                        <option value="">Select Team A</option>
+                        <option value="team-a">Team A</option>
+                        <option value="team-b">Team B</option>
+                        <option value="team-c">Team C</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="team-b">Team B</label>
+                    <select id="team-b" class="form-control">
+                        <option value="">Select Team B</option>
+                        <option value="team-a">Team A</option>
+                        <option value="team-b">Team B</option>
+                        <option value="team-c">Team C</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="overs">Number of Overs</label>
+                    <select id="overs" class="form-control">
+                        <option value="5">5 Overs</option>
+                        <option value="10">10 Overs</option>
+                        <option value="20" selected>20 Overs</option>
+                        <option value="50">50 Overs</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="match-location">Location (Optional)</label>
+                    <input type="text" id="match-location" class="form-control" placeholder="Enter match location">
+                </div>
+                
+                <div class="form-group">
+                    <label for="match-date">Match Date</label>
+                    <input type="date" id="match-date" class="form-control">
+                </div>
+                
+                <button class="btn btn-block" data-page="live-scoring">
+                    <i class="fas fa-play"></i> Start Match
+                </button>
+            </div>
+        </section>
+
+        <!-- Live Scoring Page -->
+        <section id="live-scoring" class="page">
+            <h1 class="page-title">Live Match Scoring</h1>
+            
+            <div class="scoreboard">
+                <h2>Team A vs Team B</h2>
+                <div class="team-score">
+                    <span>Team A</span>
+                    <span>124/5 (14.3 ov)</span>
+                </div>
+                <div class="team-score">
+                    <span>Team B</span>
+                    <span>89/7 (11.2 ov)</span>
+                </div>
+                <div style="margin-top: 15px; font-size: 1.3rem;">
+                    Team A is winning by 35 runs
+                </div>
+            </div>
+            
+            <div class="scoring-buttons">
+                <button class="score-btn">0</button>
+                <button class="score-btn">1</button>
+                <button class="score-btn">2</button>
+                <button class="score-btn">3</button>
+                <button class="score-btn">4</button>
+                <button class="score-btn">6</button>
+                <button class="score-btn wicket">W</button>
+                <button class="score-btn wide">WD</button>
+                <button class="score-btn noball">NB</button>
+                <button class="score-btn">B</button>
+                <button class="score-btn">LB</button>
+                <button class="score-btn" style="grid-column: span 2; background: var(--success); color: white;">
+                    <i class="fas fa-undo"></i> Undo
+                </button>
+            </div>
+            
+            <div class="player-stats">
+                <div class="player-card">
+                    <div class="player-header">
+                        <div class="player-photo">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Player">
+                        </div>
+                        <div class="player-info">
+                            <h3>Virat Kohli</h3>
+                            <p>Batting</p>
+                        </div>
+                    </div>
+                    <div class="player-stats-content">
+                        <div class="stat-row">
+                            <span>Runs</span>
+                            <span class="stat-value">42</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Balls</span>
+                            <span class="stat-value">28</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>4s/6s</span>
+                            <span class="stat-value">5/2</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Strike Rate</span>
+                            <span class="stat-value">150.0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="player-card">
+                    <div class="player-header">
+                        <div class="player-photo">
+                            <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="Player">
+                        </div>
+                        <div class="player-info">
+                            <h3>Rohit Sharma</h3>
+                            <p>Batting</p>
+                        </div>
+                    </div>
+                    <div class="player-stats-content">
+                        <div class="stat-row">
+                            <span>Runs</span>
+                            <span class="stat-value">28</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Balls</span>
+                            <span class="stat-value">20</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>4s/6s</span>
+                            <span class="stat-value">3/1</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Strike Rate</span>
+                            <span class="stat-value">140.0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="player-card">
+                    <div class="player-header">
+                        <div class="player-photo">
+                            <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="Player">
+                        </div>
+                        <div class="player-info">
+                            <h3>Jasprit Bumrah</h3>
+                            <p>Bowling</p>
+                        </div>
+                    </div>
+                    <div class="player-stats-content">
+                        <div class="stat-row">
+                            <span>Overs</span>
+                            <span class="stat-value">3.2</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Runs</span>
+                            <span class="stat-value">22</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Wickets</span>
+                            <span class="stat-value">2</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Economy</span>
+                            <span class="stat-value">6.6</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" style="flex: 1;">
+                    <i class="fas fa-baseball-ball"></i> End Innings
+                </button>
+                <button class="btn" style="flex: 1;">
+                    <i class="fas fa-save"></i> Save Match
+                </button>
+            </div>
+        </section>
+
+        <!-- Leaderboard Page -->
+        <section id="leaderboard" class="page">
+            <h1 class="page-title">Player Leaderboard</h1>
+            
+            <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 25px;">
+                <button class="btn">Weekly</button>
+                <button class="btn btn-secondary">Monthly</button>
+                <button class="btn">All-Time</button>
+            </div>
+            
+            <div class="leaderboard">
+                <div class="leaderboard-card">
+                    <div class="leaderboard-header">
+                        <h2><i class="fas fa-fire"></i> Top Run Scorers</h2>
+                    </div>
+                    <div class="leaderboard-content">
+                        <div class="leaderboard-item">
+                            <div class="rank">1</div>
+                            <div class="player-name">Virat Kohli</div>
+                            <div class="stat-value">342</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank">2</div>
+                            <div class="player-name">Rohit Sharma</div>
+                            <div class="stat-value">298</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank">3</div>
+                            <div class="player-name">KL Rahul</div>
+                            <div class="stat-value">256</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank">4</div>
+                            <div class="player-name">Shreyas Iyer</div>
+                            <div class="stat-value">231</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank">5</div>
+                            <div class="player-name">Rishabh Pant</div>
+                            <div class="stat-value">215</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="leaderboard-card">
+                    <div class="leaderboard-header">
+                        <h2><i class="fas fa-bullseye"></i> Best Bowling Economy</h2>
+                    </div>
+                    <div class="leaderboard-content">
+                        <div class="leaderboard-item">
+                            <div class="rank">1</div>
+                            <div class="player-name">Jasprit Bumrah</div>
+                            <div class="stat-value">5.21</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank">2</div>
+                            <div class="player-name">Ravindra Jadeja</div>
+                            <div class="stat-value">5.74</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank">3</div>
+                            <div class="player-name">Yuzvendra Chahal</div>
+                            <div class="stat-value">6.12</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank">4</div>
+                            <div class="player-name">Mohammed Shami</div>
+                            <div class="stat-value">6.45</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank">5</div>
+                            <div class="player-name">Bhuvneshwar Kumar</div>
+                            <div class="stat-value">6.78</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="leaderboard-card">
+                    <div class="leaderboard-header">
+                        <h2><i class="fas fa-trophy"></i> Most Wickets</h2>
+                    </div>
+                    <div class="leaderboard-content">
+                        <div class="leaderboard-item">
+                            <div class="rank">1</div>
+                            <div class="player-name">Yuzvendra Chahal</div>
+                            <div class="stat-value">14</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank">2</div>
+                            <div class="player-name">Jasprit Bumrah</div>
+                            <div class="stat-value">12</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank">3</div>
+                            <div class="player-name">Ravindra Jadeja</div>
+                            <div class="stat-value">10</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank">4</div>
+                            <div class="player-name">Mohammed Shami</div>
+                            <div class="stat-value">9</div>
+                        </div>
+                        <div class="leaderboard-item">
+                            <div class="rank">5</div>
+                            <div class="player-name">Hardik Pandya</div>
+                            <div class="stat-value">8</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>Cricket Scoring App &copy; 2023 | Track Every Run, Save Every Match</p>
+        </div>
+    </footer>
+
+    <script>
+        // Page Navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const navMenu = document.getElementById('navMenu');
+            
+            mobileMenuBtn.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+            });
+            
+            // Navigation links
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.page');
+            const actionButtons = document.querySelectorAll('button[data-page]');
+            
+            // Function to show a page
+            function showPage(pageId) {
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.getElementById(pageId).classList.add('active');
+                
+                // Update active nav link
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('data-page') === pageId) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                // Close mobile menu if open
+                navMenu.classList.remove('active');
+            }
+            
+            // Add event listeners to nav links
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const pageId = this.getAttribute('data-page');
+                    showPage(pageId);
+                });
+            });
+            
+            // Add event listeners to action buttons
+            actionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const pageId = this.getAttribute('data-page');
+                    showPage(pageId);
+                });
+            });
+            
+            // Photo upload preview
+            const photoInput = document.getElementById('photo-input');
+            const photoPreview = document.getElementById('photoPreview');
+            
+            photoInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        photoPreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Team logo upload preview
+            const teamPhotoInput = document.getElementById('team-photo-input');
+            const teamPhotoPreview = document.getElementById('teamPhotoPreview');
+            
+            teamPhotoInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        teamPhotoPreview.innerHTML = `<img src="${e.target.result}" alt="Team Preview">`;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Set today's date as default for match date
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('match-date').value = formattedDate;
+        });
+    </script>
+</body>
+</html>
